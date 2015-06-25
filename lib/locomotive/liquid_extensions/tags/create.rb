@@ -4,7 +4,7 @@ module Locomotive
 
       class Create < Solid::ConditionalBlock
 
-        # register the tag
+        # register the tag testtttt
         tag_name :create
 
         # not nil if processed from Wagon
