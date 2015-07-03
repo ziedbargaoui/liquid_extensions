@@ -56,7 +56,7 @@ module Locomotive
                             entries_custom_fields.each do |field, array|
                               field_name = field['name']
                               if overview_fields.include?(field_name) 
-                                content = content +"<p class='content-entry-"+field_name+">{{ entry."+field_name+" }}</p>"
+                                content = content +"<p class='content-entry-"+field_name+"'>{{ entry."+field_name+" }}</p>"
                               end
                             end
           content = content + "</div></li>{% endfor %}</ul></div>"
