@@ -66,7 +66,7 @@ module Locomotive
               end
 
               form_html ='<tr><td>'+form_html +'</td>
-                <td align="right" colspan="2" width="95"><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label></td><td width='5'>&nbsp;</td><td width='155' > <#{input_tag} type='#{field_type_tag}' name='content[#{field_name}]' value>"+string_options+"</#{input_tag}></td></tr>"
+                <td align="right" colspan="2" width="95"><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label></td><td width='5'>&nbsp;</td><td width='155' align='left'> <#{input_tag} type='#{field_type_tag}' name='content[#{field_name}]' value>"+string_options+"</#{input_tag}></td></tr>"
           end
           form_html = form_html + '</table><input type="submit">'
 
