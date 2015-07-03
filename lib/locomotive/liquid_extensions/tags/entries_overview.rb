@@ -46,7 +46,7 @@ module Locomotive
           entries_custom_fields = current_context.registers[:site].content_types.where(slug: content_type).first.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
           
-           overview_fields = ['titel','datum','kurzbeschreibung']
+           overview_fields = ['title','datum','kurzbeschreibung']
 
           content = "<div class ='content-entries-overview'>
                         <ul> {% for entry in contents."+content_type+" %}
@@ -56,7 +56,7 @@ module Locomotive
                             entries_custom_fields.each do |field, array|
                               field_name = field['name']
                               if overview_fields.include?(field_name) 
-                                content = content +"{{ entry."+field_name+" }}"
+                                content = content +"<p class='content-entry-"+field_name+">{{ entry."+field_name+" }}</p>"
                               end
                             end
           content = content + "</div></li>{% endfor %}</ul></div>"
