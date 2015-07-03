@@ -8,12 +8,12 @@ module Locomotive
 
           model_name, attributes = self.extract_model_name_and_attributes(options)
           @new_att = attributes
-          self.renderss(@context)
+          self.render_overview(@context)
         end
 
         def extract_model_name_and_attributes(options)
 
-          raise ::Liquid::Error.new('[form_builder] wrong number of parameters (1 is required)') if options.size < 1
+          raise ::Liquid::Error.new('[EntriesOverview] wrong number of parameters (1 is required)') if options.size < 1
 
           [options.first.to_s, options.last].tap do |name, attributes|
             if attributes.is_a?(Hash)
@@ -34,7 +34,7 @@ module Locomotive
         end
 
 
-        def renderss(context)
+        def render_overview(context)
 
           content_type = @new_att[:content_type]
 
@@ -47,13 +47,15 @@ module Locomotive
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
 
-
-          content = "<div style ='background-color:yellow;padding.5px'>Overview for "+content_type+"<ul> {% for entry in contents."+content_type+" %}<li><div style ='background-color:orange;margin:12px'>"
-
-          entries_custom_fields.each do |field, array|
-            field_name = field['name']
-            content = content +"{{ entry."+field_name+" }}"
-          end
+          content = "<div class ='content-entries-overview'>
+                        <ul> {% for entry in contents."+content_type+" %}
+                          
+                        <li>
+                          <div class ='content-entry'>"
+                            entries_custom_fields.each do |field, array|
+                              field_name = field['name']
+                              content = content +"{{ entry."+field_name+" }}"
+                            end
           content = content + "</div></li>{% endfor %}</ul></div>"
 
           @template = ::Liquid::Template.parse(content,context.merge(context_test))
