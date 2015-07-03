@@ -22,7 +22,7 @@ module Locomotive
           content_type = self.fetch_content_type(model_name)
           entries_custom_fields = content_type.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
-          form_html = '<table>'
+          form_html = '<table> <colgroup><col width="20"><col width="160"><col width="5"><col width="365"></colgroup>'
           entries_custom_fields.each do |field, array|
 
               field_name = field['name']
@@ -49,7 +49,7 @@ module Locomotive
                 field_select_options = field['select_options']
                 option_en =''
                 field_select_options.each do |option, array2|
-                  option_en = option['name']['en']
+                  option_en = option['name']['de']
                   string_options = string_options+"<option>#{option_en}</option>"
                 end
               elsif field_type == 'boolean'
@@ -65,7 +65,7 @@ module Locomotive
 
               end
 
-              form_html ='<tr><td>'+form_html +'</td><td>'+ "#{field_label}"+"#{required_star}</td><td> <#{input_tag} type='#{field_type_tag}' name='content[#{field_name}]' value>"+string_options+"</#{input_tag}></td></tr>"
+              form_html ='<tr><td>'+form_html +'</td><td width="95">'+ "#{field_label}"+"#{required_star}</td><td>&nbsp;</td><td width='155' > <#{input_tag} type='#{field_type_tag}' name='content[#{field_name}]' value>"+string_options+"</#{input_tag}></td></tr>"
           end
           form_html = form_html + '</table><input type="submit">'
 
