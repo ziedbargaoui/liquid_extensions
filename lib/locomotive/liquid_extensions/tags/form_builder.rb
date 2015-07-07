@@ -22,7 +22,18 @@ module Locomotive
           content_type = self.fetch_content_type(model_name)
           entries_custom_fields = content_type.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
-          form_html = '<table> <colgroup><col width="20"><col width="160"><col width="5"><col width="365"></colgroup>'
+          form_html = "<script src='https://www.google.com/recaptcha/api.js' async defer></script><script>$(function() {
+                        $( '.datepicker' ).datepicker({
+                          dateFormat: 'dd.mm.yy',
+                          monthNames: ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+                          dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'],
+                          dayNamesMin: ['So', 'Mo', 'Die', 'Mi', 'Do', 'Fre', 'Sa']
+                        });
+                      });</script><table> <colgroup><col width='20'><col width='160'><col width='5'><col width='365'></colgroup>"
+
+          public_key = Recaptcha.configuration.public_key
+
+
           entries_custom_fields.each do |field, array|
 
               field_name = field['name']
@@ -43,7 +54,7 @@ module Locomotive
               string_options = ''
               field_type_tag = field_type
               input_tag = 'input'
-
+              field_class = 'form_input'
               if field_type == 'select'
                 input_tag = field_type
                 field_select_options = field['select_options']
@@ -54,6 +65,9 @@ module Locomotive
                 end
               elsif field_type == 'boolean'
                 field_type_tag = 'radio'
+              elsif field_type == 'date'
+                field_class = 'datepicker'
+                field_type_tag = 'text'
               elsif field_type == 'date_time'
                 field_type_tag = 'datetime-local'
               elsif field_type == 'text'
@@ -65,10 +79,12 @@ module Locomotive
 
               end
 
-              form_html ='<tr><td>'+form_html +'</td>
-                <td align="right" colspan="2" width="95"><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label></td><td width='5'>&nbsp;</td><td width='155' align='left'> <#{input_tag} type='#{field_type_tag}' name='content[#{field_name}]' value>"+string_options+"</#{input_tag}></td></tr>"
+              form_html ="<tr><td>"+form_html +'</td>
+                <td align="right" colspan="2" width="95"><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label>
+                </td><td width='5'>&nbsp;</td><td width='155' align='left'> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value>"+string_options+"</#{input_tag}></td></tr>"
           end
-          form_html = form_html + '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td align="left"><input class="submit" type="submit"></td></tr></table>'
+          form_html = form_html + '<tr><td>&nbsp;</td><td>&nbsp;</td><td colspan="2"><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
+          form_html = form_html + ' <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td align="left"><input class="submit" type="submit"></td></tr></table>'
 
 
           return form_html
