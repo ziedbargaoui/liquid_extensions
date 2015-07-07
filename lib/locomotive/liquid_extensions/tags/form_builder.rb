@@ -12,17 +12,34 @@ module Locomotive
 
         def display(*options, &block)
           model_name, attributes = self.extract_model_name_and_attributes(options)
-          form_html = self.build_form(model_name)
+          form_html = self.build_form(model_name,attributes)
           return form_html
         end
 
         protected
 
-        def build_form(model_name)
+        def build_form(model_name, model)
+
           content_type = self.fetch_content_type(model_name)
           entries_custom_fields = content_type.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
-          form_html = "<script src='https://www.google.com/recaptcha/api.js' async defer></script><script>$(function() {
+
+          if  model[:content_type].is_a?(Hash)
+              errors =  model[:content_type]['errors']
+              form_html = "<div style='color:red;'> <p>The following errors occured:</p> <ul> "
+              errors.each do |error_key, error_value|
+                form_html << '<li>' + error_key.to_s+" - "+error_value[0].to_s + '</li>'
+              end
+              form_html << '</ul></div>'
+          elsif model[:content_type].nil?
+            form_html = ''
+          else
+            return 'thank you for submitting your request'
+          end
+
+
+
+          form_html << "<script src='https://www.google.com/recaptcha/api.js' async defer></script><script>$(function() {
                         $( '.datepicker' ).datepicker({
                           dateFormat: 'dd.mm.yy',
                           monthNames: ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
@@ -42,6 +59,10 @@ module Locomotive
               field_hint = field['hint']
               field_required = field['required']
               field_position = field['position']
+
+              if  model[:content_type].is_a?(Hash)
+                field_value =  model[:content_type]["#{field_name}"]
+              end
 
               # The "required" star
               if field_required == true
@@ -81,10 +102,10 @@ module Locomotive
 
               form_html ="<tr><td>"+form_html +'</td>
                 <td align="right" colspan="2" width="95"><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label>
-                </td><td width='5'>&nbsp;</td><td width='155' align='left'> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value>"+string_options+"</#{input_tag}></td></tr>"
+                </td><td width='5'>&nbsp;</td><td width='155' align='left'> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value='#{field_value}'>"+string_options+"</#{input_tag}></td></tr>"
           end
-          form_html = form_html + '<tr><td>&nbsp;</td><td>&nbsp;</td><td colspan="2"><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
-          form_html = form_html + ' <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td align="left"><input class="submit" type="submit"></td></tr></table>'
+          form_html << '<tr><td>&nbsp;</td><td>&nbsp;</td><td colspan="2"><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
+          form_html << ' <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td align="left"><input class="submit" type="submit"></td></tr></table>'
 
 
           return form_html
@@ -111,7 +132,7 @@ module Locomotive
 
                 attributes[k] = _source if _source
               end
-              puts attributes.inspect
+
               # the content entry should not be attached to another site or content type
               attributes.delete_if { |k, _| %w(site site_id content_type content_type_id).include?(k) }
             else
