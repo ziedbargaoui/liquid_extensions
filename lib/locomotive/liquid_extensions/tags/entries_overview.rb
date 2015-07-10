@@ -23,7 +23,7 @@ module Locomotive
 
                 attributes[k] = _source if _source
               end
-              puts attributes.inspect
+
               # the content entry should not be attached to another site or content type
               attributes.delete_if { |k, _| %w(site site_id content_type content_type_id).include?(k) }
             else
@@ -45,21 +45,44 @@ module Locomotive
 
           entries_custom_fields = current_context.registers[:site].content_types.where(slug: content_type).first.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
-          
-           overview_fields = ['title','datum','kurzbeschreibung']
+
+          if content_type == 'termine_und_seminare'
+            overview_fields = ['datum','title','referent','location']
+          else
+            overview_fields = ['title','datum','kurzbeschreibung']
+          end
 
           content = "<div class ='content-entries-overview'>
                         <ul> {% for entry in contents."+content_type+" %}
-                          
+
                         <li>
                           <div class ='content-entry'>"
                             entries_custom_fields.each do |field, array|
                               field_name = field['name']
-                              if overview_fields.include?(field_name) 
-                                content = content +"<p class='content-entry-"+field_name+"'>{{ entry."+field_name+" }}</p>"
+                              field_label = field['label']
+
+                              if overview_fields.include?(field_name)
+                                unless field['class_name'].nil?
+                                  if field['type'] == 'many_to_many'
+                                    content = content +"<p class='content-entry-"+field_name+"'>
+                                    "+field_label+": {% for sub_entry in entry."+field_name+" %}
+                                        {{ sub_entry.titel }}
+                                        {% endfor %}
+                                    </p>"
+                                  elsif field['type'] == 'belongs_to'
+                                    content = content +"<p class='content-entry-"+field_name+"'>
+
+                                        "+field_label+": {{ entry."+field_name+".titel }}
+
+                                      </p>"
+                                  end
+
+                                else
+                                  content = content +"<p class='content-entry-"+field_name+"'>{{ entry."+field_name+" }}</p>"
+                                end
                               end
                             end
-          content = content + "</div></li>{% endfor %}</ul></div>"
+          content = content + "<a href='/"+content_type+"/{{entry._slug}}' >mehr</a></div></li>{% endfor %}</ul></div>"
 
           @template = ::Liquid::Template.parse(content,context.merge(context_test))
 
