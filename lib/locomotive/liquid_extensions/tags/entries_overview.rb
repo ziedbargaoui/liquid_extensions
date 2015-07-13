@@ -52,11 +52,14 @@ module Locomotive
             overview_fields = ['title','datum','kurzbeschreibung']
           end
 
-          content = "<div class ='content-entries-overview'>
-                        <ul> {% for entry in contents."+content_type+" %}
+          overivew_uuid = SecureRandom.hex(4)
 
-                        <li>
-                          <div class ='content-entry'>"
+
+          content = "
+                      <ul class ='content-entries-overview' > {% for entry in contents."+content_type+" %}
+
+                        <li class ='content-entry'>
+                          "
                             entries_custom_fields.each do |field, array|
                               field_name = field['name']
                               field_label = field['label']
@@ -82,7 +85,9 @@ module Locomotive
                                 end
                               end
                             end
-          content = content + "<a href='/"+content_type+"/{{entry._slug}}' >mehr</a></div></li>{% endfor %}</ul></div>"
+          content = content + "<a href='/"+content_type+"/{{entry._slug}}' >{{'mehr' | translate }}</a></li>{% endfor %}</ul>
+                              <a href='/"+content_type+"/'> {{'alle_ansehen' | translate }} </a>
+              "
 
           @template = ::Liquid::Template.parse(content,context.merge(context_test))
 
