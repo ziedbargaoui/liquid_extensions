@@ -46,48 +46,72 @@ module Locomotive
           entries_custom_fields = current_context.registers[:site].content_types.where(slug: content_type).first.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
-          if content_type == 'termine_und_seminare'
+          if content_type =~ /seminar/ || content_type =~ /termin/
             overview_fields = ['datum','title','referent','location']
           else
             overview_fields = ['title','datum','kurzbeschreibung']
           end
 
+          # used to give unique ids for some elements used by jQuery functions (ex: Slider, Scroller)
           overivew_uuid = SecureRandom.hex(4)
 
 
-          content = "
-                      <ul class ='content-entries-overview' > {% for entry in contents."+content_type+" %}
+          content = "<script>$(document).ready(
 
-                        <li class ='content-entry'>
+                      function() {
+                      var listcount"+overivew_uuid+" = $('#overivew-list"+overivew_uuid+" li').size();
+                      var cli"+overivew_uuid+" = 1;
+                      $('#down"+overivew_uuid+"').click(function() {
+                          if (cli"+overivew_uuid+" < listcount"+overivew_uuid+") {
+                              $('#overivew-list"+overivew_uuid+" li:nth-child(' + cli"+overivew_uuid+" + ')').slideToggle();
+                              cli"+overivew_uuid+"++;
+                          }
+                      });
+                      $('#up"+overivew_uuid+"').click(function() {
+                          if (cli"+overivew_uuid+" > 1) {
+                              cli"+overivew_uuid+"--;
+                              $('#overivew-list"+overivew_uuid+" li:nth-child(' + cli"+overivew_uuid+" + ')').slideToggle();
+                          }
+                      });
+                      });
+                      </script>
+
+                      <a class='toggle-up-button' id='up"+overivew_uuid+"'>▲</a>
+
+                      <ul id='overivew-list"+overivew_uuid+"' class ='content-entries-overview' > {% for entry in contents."+content_type+" %}
+
+                        <li id='overivew-item"+overivew_uuid+"' class ='content-entry'>
                           "
                             entries_custom_fields.each do |field, array|
                               field_name = field['name']
                               field_label = field['label']
 
                               if overview_fields.include?(field_name)
-                                unless field['class_name'].nil?
+
+                                content << "<p class='content-entry-"
+
+                                if not field['class_name'].nil?
+
                                   if field['type'] == 'many_to_many'
-                                    content = content +"<p class='content-entry-"+field_name+"'>
-                                    "+field_label+": {% for sub_entry in entry."+field_name+" %}
-                                        {{ sub_entry.titel }}
-                                        {% endfor %}
-                                    </p>"
+                                    content  << field_name+"'> {% for sub_entry in entry."+field_name+" %} {% if sub_entry.titel != null %} "+field_label+": {{ sub_entry.titel }} {% endif %} {% endfor %} "
                                   elsif field['type'] == 'belongs_to'
-                                    content = content +"<p class='content-entry-"+field_name+"'>
-
-                                        "+field_label+": {{ entry."+field_name+".titel }}
-
-                                      </p>"
+                                    content << field_name+"'> {% if entry."+field_name+".titel != null %}"+field_label+": {{ entry."+field_name+".titel }} {% endif %}  "
                                   end
 
+                                elsif field['type'] == 'date'
+                                  content << field_name+"'>{{ entry."+field_name+" | localized_date: '%d.%m.%Y', 'de' }} "
                                 else
-                                  content = content +"<p class='content-entry-"+field_name+"'>{{ entry."+field_name+" }}</p>"
+                                  content << field_name+"'>{{ entry."+field_name+"}} "
                                 end
+
+                                content << "</p>"
+
                               end
                             end
-          content = content + "<a href='/"+content_type+"/{{entry._slug}}' >{{'mehr' | translate }}</a></li>{% endfor %}</ul>
-                              <a href='/"+content_type+"/'> {{'alle_ansehen' | translate }} </a>
-              "
+          content << "<a href='/"+content_type+"/{{entry._slug}}' >{{'mehr' | translate }}</a></li>{% endfor %}</ul>"
+          content << "<a class='toggle-down-button' id='down"+overivew_uuid+"'>▼</a>"
+          content << "<a href='/"+content_type+"/'> {{'alle_ansehen' | translate }} </a>"
+
 
           @template = ::Liquid::Template.parse(content,context.merge(context_test))
 
