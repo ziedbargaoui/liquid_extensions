@@ -4,6 +4,9 @@ module Locomotive
 
       class EntriesOverview < Solid::Block
 
+        include Locomotive::Liquid::Tags::PathHelper
+        include ActionView::Helpers::UrlHelper
+
         def display(*options, &block)
 
           model_name, attributes = self.extract_model_name_and_attributes(options)
@@ -80,37 +83,41 @@ module Locomotive
 
                       <ul id='overivew-list"+overivew_uuid+"' class ='content-entries-overview' > {% for entry in contents."+content_type+" %}
 
-                        <li id='overivew-item"+overivew_uuid+"' class ='content-entry'>
-                          "
-                            entries_custom_fields.each do |field, array|
-                              field_name = field['name']
-                              field_label = field['label']
+                        <li id='overivew-item"+overivew_uuid+"' class ='content-entry'>  "
 
-                              if overview_fields.include?(field_name)
+          entries_custom_fields.each do |field, array|
+            field_name = field['name']
+            field_label = field['label']
 
-                                content << "<p class='content-entry-"
+            if overview_fields.include?(field_name)
 
-                                if not field['class_name'].nil?
+              content << "<p class='content-entry-"
 
-                                  if field['type'] == 'many_to_many'
-                                    content  << field_name+"'> {% for sub_entry in entry."+field_name+" %} {% if sub_entry.titel != null %} "+field_label+": {{ sub_entry.titel }} {% endif %} {% endfor %} "
-                                  elsif field['type'] == 'belongs_to'
-                                    content << field_name+"'> {% if entry."+field_name+".titel != null %}"+field_label+": {{ entry."+field_name+".titel }} {% endif %}  "
-                                  end
+              if not field['class_name'].nil?
 
-                                elsif field['type'] == 'date'
-                                  content << field_name+"'>{{ entry."+field_name+" | localized_date: '%d.%m.%Y', 'de' }} "
-                                else
-                                  content << field_name+"'>{{ entry."+field_name+"}} "
-                                end
+                if field['type'] == 'many_to_many'
+                  content  << field_name+"'> {% for sub_entry in entry."+field_name+" %} {% if sub_entry.titel != null %} "+field_label+": {{ sub_entry.titel }} {% endif %} {% endfor %} "
+                elsif field['type'] == 'belongs_to'
+                  content << field_name+"'> {% if entry."+field_name+".titel != null %}"+field_label+": {{ entry."+field_name+".titel }} {% endif %}  "
+                end
 
-                                content << "</p>"
+              elsif field['type'] == 'date'
+                content << field_name+"'>{{ entry."+field_name+" | localized_date: '%d.%m.%Y', 'de' }} "
+              else
+                content << field_name+"'>{{ entry."+field_name+"}} "
+              end
 
-                              end
-                            end
-          content << "<a href='/"+content_type+"/{{entry._slug}}' >{{'mehr' | translate }}</a></li>{% endfor %}</ul>"
+              content << "</p>"
+
+            end
+          end
+
+          @handle = content_type
+          path = render_path(current_context)
+
+          content << "<a href='"+path+"/{{entry._slug}}' >{{'mehr' | translate }}</a></li>{% endfor %}</ul>"
           content << "<a class='toggle-down-button' id='down"+overivew_uuid+"'>▼</a>"
-          content << "<a href='/"+content_type+"/'> {{'alle_ansehen' | translate }} </a>"
+          content << "{% link_to "+content_type+" %} {{'alle_ansehen' | translate }} {% endlink_to %}"
 
 
           @template = ::Liquid::Template.parse(content,context.merge(context_test))
