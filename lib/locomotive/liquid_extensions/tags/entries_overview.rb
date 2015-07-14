@@ -51,8 +51,10 @@ module Locomotive
 
           if content_type =~ /seminar/ || content_type =~ /termin/
             overview_fields = ['datum','title','location','referent']
+            mehr = 'details_zum_seminare'
           else
             overview_fields = ['title','datum','kurzbeschreibung']
+            mehr = 'mehr'
           end
 
           # used to give unique ids for some elements used by jQuery functions (ex: Slider, Scroller)
@@ -127,14 +129,23 @@ module Locomotive
             #end
           end
 
-          if content_type =~ /seminar/ || content_type =~ /termin/
-            content << "</div>"
-          end
+
 
           @handle = content_type
           path = render_path(current_context)
 
-          content << "<a href='"+path+"/{{entry._slug}}' >{{'mehr' | translate }}</a></li><hr class='between-li'>{% endfor %}</ul>"
+          if content_type =~ /seminar/ || content_type =~ /termin/
+            content << "<div class='details_and_inscription'>"          
+          end
+
+          content << "<a href='"+path+"/{{entry._slug}}' >{{'"+mehr+"' | translate }}</a>"
+
+          if content_type =~ /seminar/ || content_type =~ /termin/
+            content << "&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminareanmeldung/{{entry._slug}}' >{{'seminareanmeldung' | translate }}</a></div>"
+            content << "</div>"
+          end
+
+          content << "</li><hr class='between-li'>{% endfor %}</ul>"
           content << "<a class='toggle-down-button' id='down"+overivew_uuid+"'>▼</a>"
           content << "{% link_to "+content_type+" %} {{'alle_ansehen' | translate }} {% endlink_to %}"
 
