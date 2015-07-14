@@ -50,7 +50,7 @@ module Locomotive
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
           if content_type =~ /seminar/ || content_type =~ /termin/
-            overview_fields = ['datum','title','referent','location']
+            overview_fields = ['datum','title','location','referent']
           else
             overview_fields = ['title','datum','kurzbeschreibung']
           end
@@ -85,37 +85,56 @@ module Locomotive
 
                         <li id='overivew-item"+overivew_uuid+"' class ='content-entry'>  "
 
-          entries_custom_fields.each do |field, array|
+          entries_custom_fields.each do |field_, array_|
+            if overview_fields.include?(field_['name'])
+              overview_fields[overview_fields.index(field_['name'].to_s)] = field_
+            end
+          end
+
+          # if it's for seminare, then we have some special way to make the overview
+          if content_type =~ /seminar/ || content_type =~ /termin/
+            content << "<div class='seminare-overview'>"
+          end
+
+          overview_fields.each do |field, array|
             field_name = field['name']
             field_label = field['label']
 
-            if overview_fields.include?(field_name)
+            #if overview_fields.include?(field_name)
 
-              content << "<p class='content-entry-"
+
+              content << "<div class='content-entry-"+field_name+"'>"
+
 
               if not field['class_name'].nil?
 
                 if field['type'] == 'many_to_many'
-                  content  << field_name+"'> {% for sub_entry in entry."+field_name+" %} {% if sub_entry.titel != null %} "+field_label+": {{ sub_entry.titel }} {% endif %} {% endfor %} "
+                  content  << "{% for sub_entry in entry."+field_name+" %} {% if sub_entry.titel != null %} "+field_label+": {{ sub_entry.titel }} {% endif %} {% endfor %} "
                 elsif field['type'] == 'belongs_to'
-                  content << field_name+"'> {% if entry."+field_name+".titel != null %}"+field_label+": {{ entry."+field_name+".titel }} {% endif %}  "
+                  content << "{% if entry."+field_name+".titel != null %}"+field_label+": {{ entry."+field_name+".titel }} {% endif %}  "
                 end
 
               elsif field['type'] == 'date'
-                content << field_name+"'>{{ entry."+field_name+" | localized_date: '%d.%m.%Y', 'de' }} "
+                content << "{{ entry."+field_name+" | localized_date: '%d.%m.%Y', 'de' }} "
               else
-                content << field_name+"'>{{ entry."+field_name+"}} "
+                content << "{{ entry."+field_name+"}} "
               end
 
-              content << "</p>"
 
-            end
+              content << "</div>"
+
+
+            #end
+          end
+
+          if content_type =~ /seminar/ || content_type =~ /termin/
+            content << "</div>"
           end
 
           @handle = content_type
           path = render_path(current_context)
 
-          content << "<a href='"+path+"/{{entry._slug}}' >{{'mehr' | translate }}</a></li>{% endfor %}</ul>"
+          content << "<a href='"+path+"/{{entry._slug}}' >{{'mehr' | translate }}</a></li><hr class='between-li'>{% endfor %}</ul>"
           content << "<a class='toggle-down-button' id='down"+overivew_uuid+"'>▼</a>"
           content << "{% link_to "+content_type+" %} {{'alle_ansehen' | translate }} {% endlink_to %}"
 
