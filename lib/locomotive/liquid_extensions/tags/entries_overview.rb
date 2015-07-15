@@ -64,18 +64,18 @@ module Locomotive
           content = "<script>$(document).ready(
 
                       function() {
-                      var listcount"+overivew_uuid+" = $('#overivew-list"+overivew_uuid+" li').size();
+                      var listcount"+overivew_uuid+" = $('#overivew-list"+overivew_uuid+" #overivew-item"+overivew_uuid+"').size();
                       var cli"+overivew_uuid+" = 1;
                       $('#down"+overivew_uuid+"').click(function() {
                           if (cli"+overivew_uuid+" < listcount"+overivew_uuid+") {
-                              $('#overivew-list"+overivew_uuid+" li:nth-child(' + cli"+overivew_uuid+" + ')').slideToggle();
+                              $('#overivew-list"+overivew_uuid+" #overivew-item"+overivew_uuid+":nth-child(' + cli"+overivew_uuid+" + ')').slideToggle();
                               cli"+overivew_uuid+"++;
                           }
                       });
                       $('#up"+overivew_uuid+"').click(function() {
                           if (cli"+overivew_uuid+" > 1) {
                               cli"+overivew_uuid+"--;
-                              $('#overivew-list"+overivew_uuid+" li:nth-child(' + cli"+overivew_uuid+" + ')').slideToggle();
+                              $('#overivew-list"+overivew_uuid+" #overivew-item"+overivew_uuid+":nth-child(' + cli"+overivew_uuid+" + ')').slideToggle();
                           }
                       });
                       });
@@ -83,9 +83,9 @@ module Locomotive
 
                       <a class='toggle-up-button' id='up"+overivew_uuid+"'>▲</a>
 
-                      <ul id='overivew-list"+overivew_uuid+"' class ='content-entries-overview' > {% for entry in contents."+content_type+" %}
+                      <div id='overivew-list"+overivew_uuid+"' class ='content-entries-overview' > {% for entry in contents."+content_type+" %}
 
-                        <li id='overivew-item"+overivew_uuid+"' class ='content-entry'>  "
+                        <div id='overivew-item"+overivew_uuid+"' class ='content-entry'>  "
 
           entries_custom_fields.each do |field_, array_|
             if overview_fields.include?(field_['name'])
@@ -155,11 +155,11 @@ module Locomotive
           content << "<a href='"+path+"/{{entry._slug}}' >{{'"+mehr+"' | translate }}</a>"
 
           if content_type =~ /seminar/ || content_type =~ /termin/
-            content << "&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?id={{entry._id}}' >{{'seminareanmeldung' | translate }}</a></div>"
+            content << "&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type+"&entry_id={{entry._id}}' >{{'seminareanmeldung' | translate }}</a></div>"
 
           end
 
-          content << "</li>{% endfor %}</ul>"
+          content << "</div>{% endfor %}</div>"
           content << "<a class='toggle-down-button' id='down"+overivew_uuid+"'>▼</a>"
           content << "{% link_to "+content_type+" %} {{'alle_ansehen' | translate }} {% endlink_to %}"
 

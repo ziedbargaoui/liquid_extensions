@@ -37,6 +37,24 @@ module Locomotive
             return 'thank you for submitting your request'
           end
 
+          # this used for formulars that are specific to an entry (ex: job, event)
+
+          params = model[:parameters]
+
+          if not params[:entry_content_type].nil?
+            entry_content_type = params[:entry_content_type]
+            entry_id = params[:entry_id]
+            entry_title = current_context.registers[:site].content_entries.where(id: entry_id).first.attributes['title']
+            entry_datum = current_context.registers[:site].content_entries.where(id: entry_id).first.attributes['datum']
+            if not entry_datum.nil?
+              form_html << entry_datum.strftime("%d.%m.%Y").to_s
+            end
+            if not entry_title.nil?
+              form_html << "<br><strong>"+entry_title+"</strong><br>"
+            end
+          end
+
+
 
 
           form_html << "<script src='https://www.google.com/recaptcha/api.js' async defer></script><script>$(function() {
