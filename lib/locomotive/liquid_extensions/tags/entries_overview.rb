@@ -103,7 +103,7 @@ module Locomotive
             field_label = field['label']
 
             #if overview_fields.include?(field_name)
-            if field_name =~ /title/
+            if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /title/
               content << "</div><div class='seminare-overview-2'>"
             end
 
@@ -159,7 +159,7 @@ module Locomotive
 
           end
 
-          content << "</li><hr class='between-li'>{% endfor %}</ul>"
+          content << "</li>{% endfor %}</ul>"
           content << "<a class='toggle-down-button' id='down"+overivew_uuid+"'>▼</a>"
           content << "{% link_to "+content_type+" %} {{'alle_ansehen' | translate }} {% endlink_to %}"
 
