@@ -79,6 +79,7 @@ module Locomotive
               field_required = field['required']
               field_position = field['position']
 
+
               if  model[:content_type].is_a?(Hash)
                 field_value =  model[:content_type]["#{field_name}"]
               end
@@ -121,7 +122,11 @@ module Locomotive
 
               form_html ="<tr><td>"+form_html +'</td>
                 <td><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label>
-                </td><td>&nbsp;</td><td> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value='#{field_value}'>"+string_options+"</#{input_tag}></td></tr>"
+                </td><td>&nbsp;</td><td> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value='#{field_value}'>"+string_options+"</#{input_tag}>"
+              if not field_hint.nil?
+                form_html << "<label class='field_hint'>"+field_hint+"</label>"
+              end
+              form_html <<  "</td></tr>"
           end
           form_html << '<tr><td>&nbsp;</td><td>&nbsp;</td><td><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
           form_html << ' <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td><input class="submit" type="submit"></td></tr></table>'

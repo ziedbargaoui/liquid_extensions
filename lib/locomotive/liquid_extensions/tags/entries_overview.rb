@@ -50,7 +50,7 @@ module Locomotive
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
           if content_type =~ /seminar/ || content_type =~ /termin/
-            overview_fields = ['datum','location','title','referent']
+            overview_fields = ['title','referent','datum','location']
             mehr = 'details_zum_seminare'
           else
             overview_fields = ['title','datum','kurzbeschreibung']
@@ -103,7 +103,7 @@ module Locomotive
             field_label = field['label']
 
             #if overview_fields.include?(field_name)
-            if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /title/
+            if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /datum/
               content << "</div><div class='seminare-overview-2'>"
             end
 
