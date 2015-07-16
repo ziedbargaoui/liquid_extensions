@@ -24,6 +24,7 @@ module Locomotive
           entries_custom_fields = content_type.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
+
           if  model[:content_type].is_a?(Hash)
               errors =  model[:content_type]['errors']
               form_html = "<div style='color:red;'> <p>The following errors occured:</p> <ul> "
@@ -64,7 +65,7 @@ module Locomotive
                           dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'],
                           dayNamesMin: ['So', 'Mo', 'Die', 'Mi', 'Do', 'Fre', 'Sa']
                         });
-                      });</script><table> <colgroup><col width='20'><col width='160'><col width='5'><col width='365'></colgroup>"
+                      });</script><table>"
 
           public_key = Recaptcha.configuration.public_key
 
@@ -103,7 +104,7 @@ module Locomotive
                   string_options = string_options+"<option>#{option_en}</option>"
                 end
               elsif field_type == 'boolean'
-                field_type_tag = 'radio'
+                field_type_tag = 'checkbox'
               elsif field_type == 'date'
                 field_class = 'datepicker'
                 field_type_tag = 'text'
@@ -119,11 +120,11 @@ module Locomotive
               end
 
               form_html ="<tr><td>"+form_html +'</td>
-                <td align="right" colspan="2" width="95"><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label>
-                </td><td width='5'>&nbsp;</td><td width='155' align='left'> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value='#{field_value}'>"+string_options+"</#{input_tag}></td></tr>"
+                <td><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label>
+                </td><td>&nbsp;</td><td> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value='#{field_value}'>"+string_options+"</#{input_tag}></td></tr>"
           end
-          form_html << '<tr><td>&nbsp;</td><td>&nbsp;</td><td colspan="2"><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
-          form_html << ' <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td align="left"><input class="submit" type="submit"></td></tr></table>'
+          form_html << '<tr><td>&nbsp;</td><td>&nbsp;</td><td><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
+          form_html << ' <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td><input class="submit" type="submit"></td></tr></table>'
 
 
           return form_html
