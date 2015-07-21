@@ -22,7 +22,7 @@ module Locomotive
 
           content_type = self.fetch_content_type(model_name)
           entries_custom_fields = content_type.attributes['entries_custom_fields']
-          entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
+          entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}          
 
 
           if  model[:content_type].is_a?(Hash)
@@ -84,6 +84,7 @@ module Locomotive
                 field_value =  model[:content_type]["#{field_name}"]
               end
 
+
               # The "required" star
               if field_required == true
                 required_star = "*"
@@ -106,6 +107,15 @@ module Locomotive
                 end
               elsif field_type == 'boolean'
                 field_type_tag = 'checkbox'
+
+                if field_value == false
+                  checkbox = ''
+                  field_value = '0'
+                else
+                  checkbox = 'checked="checked"'
+                  field_value = '1'
+                end
+
               elsif field_type == 'date'
                 field_class = 'datepicker'
                 field_type_tag = 'text'
@@ -117,18 +127,21 @@ module Locomotive
                 inverse_of = field['inverse_of']
                 content_type_of_inverse = self.fetch_content_type(inverse_of)
                 entries = current_context.registers[:site].content_entries.where(_type: 'Locomotive::ContentEntry55476baeb3c714d91a000008')
-
+              elsif field_type == 'captcha'
+                input_tag = 'textarea'
+                form_html << '<tr><td>&nbsp;</td><td>&nbsp;</td><td><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
+                next
               end
 
               form_html ="<tr><td>"+form_html +'</td>
                 <td><label for ="'+field_label+'">'+ "#{field_label}"+"#{required_star}</label>
-                </td><td>&nbsp;</td><td> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value='#{field_value}'>"+string_options+"</#{input_tag}>"
+                </td><td>&nbsp;</td><td> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' #{checkbox} value='#{field_value}'>"+string_options+"</#{input_tag}>"
               if not field_hint.nil?
                 form_html << "<label class='field_hint'>"+field_hint+"</label>"
               end
               form_html <<  "</td></tr>"
           end
-          form_html << '<tr><td>&nbsp;</td><td>&nbsp;</td><td><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
+
           form_html << ' <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td><input class="submit" type="submit"></td></tr></table>'
 
 

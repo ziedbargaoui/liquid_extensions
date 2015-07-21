@@ -39,12 +39,13 @@ module Locomotive
 
         def render_overview(context)
 
-          content_type = @new_att[:content_type]
+          content_type_id = @new_att[:content_type]
 
 
           context_test = Hash.new
           context_test[:site] = current_context.registers[:site]
 
+          content_type = current_context.registers[:site].content_types.where(_id: content_type_id).first[:slug]
 
           entries_custom_fields = current_context.registers[:site].content_types.where(slug: content_type).first.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
