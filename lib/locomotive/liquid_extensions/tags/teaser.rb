@@ -55,9 +55,14 @@ module Locomotive
             teasers_content_entries = context.registers[:site].content_entries.where(content_type_id: teasers_content_type.id, _slug: i)
 
             teasers_content_entries.each do |teaser|
-              content << '<div class="'+div_class_prefix+'-teaser">
-              <div class="'+div_class_prefix+'-teaser-title">'+teaser.teaser_name+'</div>'
-              content << under_title
+              content << '<div class="'+div_class_prefix+'-teaser">'
+              if teaser.teaser_name.empty? and @new_att[:mode]=='mini'
+                content << '<div class="'+div_class_prefix+'-teaser-title">'+teaser.teaser_title+'</div>'
+                content << under_title
+              elsif not teaser.teaser_name.empty?
+                content << '<div class="'+div_class_prefix+'-teaser-title">'+teaser.teaser_name+'</div>'
+                content << under_title
+              end
               content << '<div class="'+div_class_prefix+'-teaser-content">'+teaser.teaser_body+'</div>
               </div>'
             end
