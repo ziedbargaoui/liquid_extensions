@@ -22,20 +22,23 @@ module Locomotive
 
           content_type = self.fetch_content_type(model_name)
           entries_custom_fields = content_type.attributes['entries_custom_fields']
-          entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}          
+          entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
 
           if  model[:content_type].is_a?(Hash)
               errors =  model[:content_type]['errors']
               form_html = "<div style='color:red;'> <p>The following errors occured:</p> <ul> "
               errors.each do |error_key, error_value|
-                form_html << '<li>' + error_key.to_s+" - "+error_value[0].to_s + '</li>'
+                if error_key.to_s != '_slug'
+                  form_html << '<li>' + error_key.to_s+" - "+error_value[0].to_s + '</li>'
+                end
               end
               form_html << '</ul></div>'
           elsif model[:content_type].nil?
             form_html = ''
           else
-            return 'thank you for submitting your request'
+            returned_message = content_type.attributes['returned_message']
+            return returned_message
           end
 
           # this used for formulars that are specific to an entry (ex: job, event)
