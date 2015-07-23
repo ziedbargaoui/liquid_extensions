@@ -37,7 +37,7 @@ module Locomotive
           elsif model[:content_type].nil?
             form_html = ''
           else
-            returned_message = content_type.attributes['returned_message']
+            returned_message = "<script>_gaq.push(['_trackEvent', '"+content_type[:name].to_s+" Formular', 'Form Submit','"+content_type[:_id].to_s+"']);</script>"+content_type.attributes['returned_message'].to_s
             return returned_message
           end
 
@@ -104,9 +104,11 @@ module Locomotive
                 input_tag = field_type
                 field_select_options = field['select_options']
                 option_en =''
-                field_select_options.each do |option, array2|
-                  option_en = option['name']['de']
-                  string_options = string_options+"<option>#{option_en}</option>"
+                unless field_select_options.nil?
+                  field_select_options.each do |option, array2|
+                    option_en = option['name']['de']
+                    string_options = string_options+"<option>#{option_en}</option>"
+                  end
                 end
               elsif field_type == 'boolean'
                 field_type_tag = 'checkbox'
