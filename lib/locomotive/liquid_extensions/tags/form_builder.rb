@@ -24,13 +24,19 @@ module Locomotive
           entries_custom_fields = content_type.attributes['entries_custom_fields']
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
+          # used to get the labels when displaying the errors
+          custom_fields_key_label = {}
+          entries_custom_fields.each do |field|
+            custom_fields_key_label[field['name']] = field['label']
+          end
 
           if  model[:content_type].is_a?(Hash)
               errors =  model[:content_type]['errors']
-              form_html = "<div style='color:red;'> <p>The following errors occured:</p> <ul> "
+              form_html = "<div style='color:red;'> <p>{{'following_errors_occured' | translate}}:</p> <ul> "
               errors.each do |error_key, error_value|
                 if error_key.to_s != '_slug'
-                  form_html << '<li>' + error_key.to_s+" - "+error_value[0].to_s + '</li>'
+                  error_label = custom_fields_key_label[error_key.to_s]
+                  form_html << '<li>' + error_label.to_s+" - "+error_value[0].to_s + '</li>'
                 end
               end
               form_html << '</ul></div>'
