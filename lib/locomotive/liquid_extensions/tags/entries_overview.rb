@@ -162,7 +162,7 @@ module Locomotive
 
           content << "</div>{% endfor %}</div>"
           content << "<a class='toggle-down-button' id='down"+overivew_uuid+"'>▼</a>"
-          content << "{% link_to "+content_type+" %} {{'alle_ansehen' | translate }} {% endlink_to %}"
+          content << "{% link_to "+content_type+" %} <b class='alle_ansehen'>{{'alle_ansehen' | translate }}</b> {% endlink_to %}"
 
 
           @template = ::Liquid::Template.parse(content,context.merge(context_test))
