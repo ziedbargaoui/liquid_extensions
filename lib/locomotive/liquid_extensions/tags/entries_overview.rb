@@ -48,13 +48,21 @@ module Locomotive
           content_type = current_context.registers[:site].content_types.where(_id: content_type_id).first[:slug]
 
           entries_custom_fields = current_context.registers[:site].content_types.where(slug: content_type).first.attributes['entries_custom_fields']
+          content_type_label_field_name = current_context.registers[:site].content_types.where(slug: content_type).first.attributes['label_field_name']
+
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
           if content_type =~ /seminar/ || content_type =~ /termin/
-            overview_fields = ['title','referent','datum','location']
+            overview_fields = [content_type_label_field_name,'referent','datum','location']
             mehr = 'details_zum_seminare'
+          elsif content_type =~ /referent/
+            overview_fields = [content_type_label_field_name,'land','url','seminare','bilder']
+            mehr = 'ueber_den_referent'
+          elsif content_type =~ /news/
+            overview_fields = [content_type_label_field_name,'datum','kurzbeschreibung']
+            mehr = 'mehr'
           else
-            overview_fields = ['title','datum','kurzbeschreibung']
+            overview_fields = [content_type_label_field_name]
             mehr = 'mehr'
           end
 
@@ -95,9 +103,10 @@ module Locomotive
           end
 
           # if it's for seminare, then we have some special way to make the overview
-          if content_type =~ /seminar/ || content_type =~ /termin/
+          if content_type =~ /seminar/ || content_type =~ /termin/ || content_type =~ /referent/
             content << "<div class='seminare-overview'>"
           end
+
           i = 0
           overview_fields.each_with_index do |field, index|
             field_name = field['name']
@@ -106,32 +115,65 @@ module Locomotive
             #if overview_fields.include?(field_name)
             if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /datum/
               content << "</div><div class='seminare-overview-2'>"
+            elsif  content_type =~ /referent/  &&  field_name =~ /bilder/
+              content << "</div><div class='seminare-overview-2'>"
             end
 
               content << "<div class='content-entry-"+field_name+"'>"
 
-
+              # This condition means that the field is a mapping to another content type, and it should be treated
+              # differently, thus getting the related content entry.
               if not field['class_name'].nil?
 
+                field_content_type_id = field['class_name']
+                field_content_type_id = field_content_type_id.gsub("Locomotive::ContentEntry","")
+                # get class of the related field's content_type, and its label_field_name
+                related_field_content_type_label_field_name = current_context.registers[:site].content_types.where(_id: field_content_type_id).first[:label_field_name]
+
+
                 if field['type'] == 'many_to_many'
-                  content  << "{% for sub_entry in entry."+field_name+" %} {% if sub_entry.titel != null %} "+field_label+": "
-                  if field_name =~ /referent/
+
+                  unless field_name =~ /bild/ || field_name =~ /photo/
+                    content << field_label+": <br>"
+                  end
+                  content  << "{% for sub_entry in entry."+field_name+" %}
+
+                  {% if sub_entry."+related_field_content_type_label_field_name+" != null %}  "
+
+
+                  if field_name =~ /referent/ || field_name =~ /seminar/ || field_name =~ /termin/
                     content_type_id = current_context.registers[:site].content_entries.where(_type: field['class_name']).first.attributes['content_type_id']
                     content_type_slug = current_context.registers[:site].content_types.where(_id: content_type_id).first.attributes['slug']
                     @handle = content_type_slug
                     path = render_path(current_context)
-                    content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{sub_entry.titel}}</a>"
+
+                    if field_name =~ /seminar/ || field_name =~ /termin/
+                      content << "{{sub_entry.datum}} <br>"
+                      content << "Ort: {{sub_entry.location.titel}}<br>"
+                      content << "{{sub_entry."+related_field_content_type_label_field_name+"}}<br>"
+                      content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{ 'details_zum_seminare' | translate}}</a>&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type+"&entry_id={{entry._id}}' >{{'seminareanmeldung' | translate }}</a><br><br>"
+
+                    else
+                      content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{sub_entry."+related_field_content_type_label_field_name+"}}</a><br>"
+                    end
+
+
+                  elsif field_name =~ /bild/ || field_name =~ /photo/
+                    content  << "{{  sub_entry.file.url  | image_tag }}"
                   else
-                    content  << "{{ sub_entry.titel }}  "
+                    content  << "{{ sub_entry."+related_field_content_type_label_field_name+" }}  "
                   end
+
                   content  << " {% endif %} {% endfor %} "
 
                 elsif field['type'] == 'belongs_to'
-                  content << "{% if entry."+field_name+".titel != null %}"+field_label+": {{ entry."+field_name+".titel }} {% endif %}  "
+                  content << "{% if entry."+field_name+"."+related_field_content_type_label_field_name+" != null %}"+field_label+": {{ entry."+field_name+"."+related_field_content_type_label_field_name+" }} {% endif %}  "
                 end
 
               elsif field['type'] == 'date'
                 content << "{{ entry."+field_name+" | localized_date: '%d.%m.%Y', 'de' }} "
+              elsif field['hint'] =~ /http/
+                content << "<a href={{entry."+field_name+"}}> {{entry."+field_name+"}} </a>"
               else
                 content << "{{ entry."+field_name+"}} "
               end
@@ -148,7 +190,7 @@ module Locomotive
           @handle = content_type
           path = render_path(current_context)
 
-          if content_type =~ /seminar/ || content_type =~ /termin/
+          if content_type =~ /seminar/ || content_type =~ /termin/ || content_type =~ /referent/
             content << "</div>"
             content << "<div class='details_and_inscription'>"
           end
@@ -158,6 +200,8 @@ module Locomotive
           if content_type =~ /seminar/ || content_type =~ /termin/
             content << "&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type+"&entry_id={{entry._id}}' >{{'seminareanmeldung' | translate }}</a></div>"
 
+          elsif content_type =~ /referent/
+            content << "</div>"
           end
 
           content << "</div>{% endfor %}</div>"
