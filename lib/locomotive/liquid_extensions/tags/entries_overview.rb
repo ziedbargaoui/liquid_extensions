@@ -134,7 +134,7 @@ module Locomotive
                 if field['type'] == 'many_to_many'
 
                   unless field_name =~ /bild/ || field_name =~ /photo/
-                    content << field_label+": <br>"
+                    content <<  "{% if entry."+field_name+"  != empty %} "+field_label+": <br>  {% endif %}"
                   end
                   content  << "{% for sub_entry in entry."+field_name+" %}
 
@@ -149,7 +149,7 @@ module Locomotive
 
                     if field_name =~ /seminar/ || field_name =~ /termin/
                       content << "{{sub_entry.datum}} <br>"
-                      content << "Ort: {{sub_entry.location.titel}}<br>"
+                      content << "{{ 'ort' | translate }}: {{sub_entry.location.titel}}<br>"
                       content << "{{sub_entry."+related_field_content_type_label_field_name+"}}<br>"
                       content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{ 'details_zum_seminare' | translate}}</a>&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type+"&entry_id={{entry._id}}' >{{'seminareanmeldung' | translate }}</a><br><br>"
 
