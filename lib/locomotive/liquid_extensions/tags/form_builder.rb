@@ -32,7 +32,7 @@ module Locomotive
 
           if  model[:content_type].is_a?(Hash)
               errors =  model[:content_type]['errors']
-              form_html = "<div style='color:red;'> <p>"+I18n.t('following_errors_occured')+":</p> <ul> "
+              form_html = "<div style='color:red;'> <p>{{'following_errors_occured' | translate}}:</p> <ul> "
               errors.each do |error_key, error_value|
                 if error_key.to_s != '_slug'
                   error_label = custom_fields_key_label[error_key.to_s]
@@ -113,7 +113,11 @@ module Locomotive
                 unless field_select_options.nil?
                   field_select_options.each do |option, array2|
                     option_en = option['name']['de']
-                    string_options = string_options+"<option>#{option_en}</option>"
+                    if option_en == field_value
+                      string_options = string_options+"<option selected >#{option_en}</option>"
+                    else
+                      string_options = string_options+"<option>#{option_en}</option>"
+                    end
                   end
                 end
               elsif field_type == 'boolean'
@@ -134,6 +138,9 @@ module Locomotive
                 field_type_tag = 'datetime-local'
               elsif field_type == 'text'
                 input_tag = 'textarea'
+                unless field_value.nil?
+                  string_options = field_value
+                end
               elsif field_type == 'belongs_to'
                 inverse_of = field['inverse_of']
                 content_type_of_inverse = self.fetch_content_type(inverse_of)
