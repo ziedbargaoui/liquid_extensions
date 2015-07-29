@@ -170,8 +170,21 @@ module Locomotive
                   content << "{% if entry."+field_name+"."+related_field_content_type_label_field_name+" != null %}"+field_label+": {{ entry."+field_name+"."+related_field_content_type_label_field_name+" }} {% endif %}  "
                 end
 
-              elsif field['type'] == 'picture'
-                content << "{{ entry."+field_name+" | image_tag }} "
+              elsif field['type'] == 'data'
+                content << "
+
+                {% assign file_parts = entry."+field_name+" | split: '.' %}
+                {% assign file_extension = file_parts | last  %}
+                {% assign file_path = file_parts[0] | split: '/' %}
+                {% assign file_name = file_path| last  %}
+                {% assign image_extensions = 'bmp,gif,jpg,png,jpeg,jfif,tiff,tif,jp2,jpx,j2k,j2c,fpx,pcd' %}
+                {% if image_extensions contains file_extension %}
+                  {{ entry."+field_name+" | image_tag }}
+                {% elsif entry."+field_name+" != null  %}
+                  <a href='{{ entry."+field_name+"}}'>{{ file_name }}.{{file_extension}}</a>
+                {% endif %}
+
+                "
               elsif field['type'] == 'date'
                 content << "{{ entry."+field_name+" | localized_date: '%d.%m.%Y', 'de' }} "
               elsif field['hint'] =~ /http/
