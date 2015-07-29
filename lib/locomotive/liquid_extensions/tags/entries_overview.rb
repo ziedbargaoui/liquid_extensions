@@ -56,7 +56,7 @@ module Locomotive
             overview_fields = [content_type_label_field_name,'referent','datum','location']
             mehr = 'details_zum_seminare'
           elsif content_type =~ /referent/
-            overview_fields = [content_type_label_field_name,'land','url','seminare','bilder']
+            overview_fields = [content_type_label_field_name,'land','url','seminare','bild']
             mehr = 'ueber_den_referent'
           elsif content_type =~ /news/
             overview_fields = [content_type_label_field_name,'datum','kurzbeschreibung']
@@ -115,7 +115,7 @@ module Locomotive
             #if overview_fields.include?(field_name)
             if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /datum/
               content << "</div><div class='seminare-overview-2'>"
-            elsif  content_type =~ /referent/  &&  field_name =~ /bilder/
+            elsif  content_type =~ /referent/  &&  field_name =~ /bild/
               content << "</div><div class='seminare-overview-2'>"
             end
 
@@ -170,6 +170,8 @@ module Locomotive
                   content << "{% if entry."+field_name+"."+related_field_content_type_label_field_name+" != null %}"+field_label+": {{ entry."+field_name+"."+related_field_content_type_label_field_name+" }} {% endif %}  "
                 end
 
+              elsif field['type'] == 'picture'
+                content << "{{ entry."+field_name+" | image_tag }} "
               elsif field['type'] == 'date'
                 content << "{{ entry."+field_name+" | localized_date: '%d.%m.%Y', 'de' }} "
               elsif field['hint'] =~ /http/
