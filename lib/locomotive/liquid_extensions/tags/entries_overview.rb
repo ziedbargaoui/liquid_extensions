@@ -113,8 +113,7 @@ module Locomotive
             end
 
             content <<"<div id='overivew-item"+overivew_uuid+"' class ='content-entry'> "
-            @handle = content_type
-            path = render_path(current_context)
+
           entries_custom_fields.each do |field_, array_|
             if overview_fields.include?(field_['name'])
               overview_fields[overview_fields.index(field_['name'].to_s)] = field_
@@ -132,6 +131,8 @@ module Locomotive
             field_label = field['label']
 
             if content_type =~ /referent/ && index == 1
+              @handle = content_type
+              path = render_path(current_context)
 
               content << "<a href='"+path+"/{{entry._slug}}' >{{'"+mehr+"' | translate }}</a>"
             end
@@ -226,7 +227,8 @@ module Locomotive
 
 
 
-
+          @handle = content_type
+          path = render_path(current_context)
 
           if content_type =~ /seminar/ || content_type =~ /termin/ || content_type =~ /referent/
             content << "</div>"
