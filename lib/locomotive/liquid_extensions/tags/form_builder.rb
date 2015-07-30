@@ -149,6 +149,9 @@ module Locomotive
                 input_tag = 'textarea'
                 form_html << '<tr><td>&nbsp;</td><td>&nbsp;</td><td><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
                 next
+              elsif field_type == 'free_html'
+                form_html << '<tr>'+field['free_html_text']+'</tr>'
+                next
               end
 
               form_html ="<tr><td>"+form_html +'</td>
