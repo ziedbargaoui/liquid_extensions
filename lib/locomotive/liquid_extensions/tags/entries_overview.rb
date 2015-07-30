@@ -92,9 +92,27 @@ module Locomotive
 
                       <a class='toggle-up-button' id='up"+overivew_uuid+"'>▲</a>
 
-                      <div id='overivew-list"+overivew_uuid+"' class ='content-entries-overview' > {% for entry in contents."+content_type+" %}
+                      <div id='overivew-list"+overivew_uuid+"' class ='content-entries-overview' >"
 
-                        <div id='overivew-item"+overivew_uuid+"' class ='content-entry'>  "
+            # Filtering and sorting
+            if content_type =~ /seminar/ || content_type =~ /termin/
+              content << "{% with_scope order_by: 'datum asc' %}"
+            elsif content_type =~ /news/ || content_type =~ /aktuelles/
+              content << "{% with_scope order_by: 'datum desc' %}"
+            end
+
+            # Starting the main for that get the content entries
+
+            content << "{% for entry in contents."+content_type+" %}"
+
+            #Open the if that checks the Gultig_von gueltig_bis
+            if content_type =~ /seminar/ || content_type =~ /termin/ || content_type =~ /news/ || content_type =~ /aktuelles/
+              content <<"{% if entry.gueltig_von == null or entry.gueltig_von <= today %}
+                          {% if entry.gueltig_bis == null or entry.gueltig_bis >= today %}"
+
+            end
+
+            content <<"<div id='overivew-item"+overivew_uuid+"' class ='content-entry'> "
 
           entries_custom_fields.each do |field_, array_|
             if overview_fields.include?(field_['name'])
@@ -219,7 +237,23 @@ module Locomotive
             content << "</div>"
           end
 
-          content << "</div>{% endfor %}</div>"
+
+
+          content << "</div>"
+
+          #Close the if that checks the Gultig_von gueltig_bis
+
+          if content_type =~ /seminar/ || content_type =~ /termin/ || content_type =~ /news/ || content_type =~ /aktuelles/
+            content <<"{% endif %}{% endif %}"
+          end
+
+          content <<"{% endfor %}</div>"
+
+          # End Filtering and sorting
+          if content_type =~ /seminar/ || content_type =~ /termin/ || content_type =~ /news/ || content_type =~ /aktuelles/
+            content << "{% endwith_scope %}"
+          end
+
           content << "<a class='toggle-down-button' id='down"+overivew_uuid+"'>▼</a>"
           content << "{% link_to "+content_type+" %} <b class='alle_ansehen'>{{'alle_ansehen' | translate }}</b> {% endlink_to %}"
 
