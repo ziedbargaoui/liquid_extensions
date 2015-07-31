@@ -53,7 +53,7 @@ module Locomotive
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
           if content_type =~ /seminar/ || content_type =~ /termin/
-            overview_fields = [content_type_label_field_name,'referent','datum','location']
+            overview_fields = [content_type_label_field_name,'referent','beginn','location']
             mehr = 'details_zum_seminare'
           elsif content_type =~ /referent/
             overview_fields = [content_type_label_field_name,'land','url','seminare','bild']
@@ -96,7 +96,7 @@ module Locomotive
 
             # Filtering and sorting
             if content_type =~ /seminar/ || content_type =~ /termin/
-              content << "{% with_scope order_by: 'datum asc' %}"
+              content << "{% with_scope order_by: 'beginn asc' %}"
             elsif content_type =~ /news/ || content_type =~ /aktuelles/
               content << "{% with_scope order_by: 'datum desc' %}"
             end
@@ -139,7 +139,7 @@ module Locomotive
 
 
             #if overview_fields.include?(field_name)
-            if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /datum/
+            if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /beginn/
               content << "</div><div class='seminare-overview-2'>"
             elsif  content_type =~ /referent/  &&  field_name =~ /bild/
               content << "</div><div class='seminare-overview-2'>"
@@ -173,7 +173,7 @@ module Locomotive
                     path = render_path(current_context)
 
                     if field_name =~ /seminar/ || field_name =~ /termin/
-                      content << "{% if sub_entry.datum != null %} {{sub_entry.datum}} <br>{% endif %}"
+                      content << "{% if sub_entry.beginn != null %} {{sub_entry.beginn}} <br>{% endif %}"
                       content << "{% if sub_entry.location.titel  != empty %} {{ 'ort' | translate }}: {{sub_entry.location.titel}}<br>{% endif %}"
                       content << "{{sub_entry."+related_field_content_type_label_field_name+"}}<br>"
                       content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{ 'details_zum_seminare' | translate}}</a>&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type+"&entry_id={{entry._id}}' >{{'seminareanmeldung' | translate }}</a><br><br>"
