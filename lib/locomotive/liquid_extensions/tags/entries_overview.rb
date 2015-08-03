@@ -145,7 +145,7 @@ module Locomotive
               content << "</div><div class='seminare-overview-2'>"
             end
 
-              content << "<div class='content-entry-"+field_name+"'>"
+              content << "<div class='content-entry-"+field_name.to_s+"'>"
 
 
               # This condition means that the field is a mapping to another content type, and it should be treated
