@@ -32,7 +32,7 @@ module Locomotive
 
           if  model[:content_type].is_a?(Hash)
               errors =  model[:content_type]['errors']
-              form_html = "<div style='color:red;'> <p>{{'please_fill_the_mandatory_fields' | translate}}:</p> </div> "
+              form_html = "<div style='color:red;'> <p>"+I18n.t('please_fill_the_mandatory_fields')+":</p> </div> "
               #errors.each do |error_key, error_value|
               #  if error_key.to_s != '_slug'
               #    error_label = custom_fields_key_label[error_key.to_s]
