@@ -53,7 +53,7 @@ module Locomotive
           entries_custom_fields.sort! {|left, right| left['position'] <=> right['position']}
 
           if content_type =~ /seminar/ || content_type =~ /termin/
-            overview_fields = [content_type_label_field_name,'referent','beginn','location']
+            overview_fields = [content_type_label_field_name,'referent','datum','location']
             mehr = 'details_zum_seminare'
           elsif content_type =~ /referent/
             overview_fields = [content_type_label_field_name,'land','url','seminare','bild']
@@ -96,7 +96,7 @@ module Locomotive
 
             # Filtering and sorting
             if content_type =~ /seminar/ || content_type =~ /termin/
-              content << "{% with_scope order_by: 'beginn asc' %}"
+              content << "{% with_scope order_by: 'datum asc' %}"
             elsif content_type =~ /news/ || content_type =~ /aktuelles/
               content << "{% with_scope order_by: 'datum desc' %}"
             end
@@ -139,7 +139,7 @@ module Locomotive
 
 
             #if overview_fields.include?(field_name)
-            if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /beginn/
+            if  (content_type =~ /seminar/ || content_type =~ /termin/) &&  field_name =~ /datum/
               content << "</div><div class='seminare-overview-2'>"
             elsif  content_type =~ /referent/  &&  field_name =~ /bild/
               content << "</div><div class='seminare-overview-2'>"
@@ -167,16 +167,17 @@ module Locomotive
 
 
                   if field_name =~ /referent/ || field_name =~ /seminar/ || field_name =~ /termin/
+                    # get the related content type name and id and path
                     content_type_id = current_context.registers[:site].content_entries.where(_type: field['class_name']).first.attributes['content_type_id']
                     content_type_slug = current_context.registers[:site].content_types.where(_id: content_type_id).first.attributes['slug']
                     @handle = content_type_slug
                     path = render_path(current_context)
 
                     if field_name =~ /seminar/ || field_name =~ /termin/
-                      content << "{% if sub_entry.beginn != null %} {{sub_entry.beginn}} <br>{% endif %}"
+                      content << "{% if sub_entry.datum != null %} {{sub_entry.datum}} <br>{% endif %}"
                       content << "{% if sub_entry.location.titel  != empty %} {{ 'ort' | translate }}: {{sub_entry.location.titel}}<br>{% endif %}"
                       content << "{{sub_entry."+related_field_content_type_label_field_name+"}}<br>"
-                      content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{ 'details_zum_seminare' | translate}}</a>&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type+"&entry_id={{entry._id}}' >{{'seminareanmeldung' | translate }}</a><br><br>"
+                      content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{ 'details_zum_seminare' | translate}}</a>&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type_slug+"&entry_id={{sub_entry._id}}' >{{'seminareanmeldung' | translate }}</a><br><br>"
 
                     else
                       content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{sub_entry."+related_field_content_type_label_field_name+"}}</a><br>"

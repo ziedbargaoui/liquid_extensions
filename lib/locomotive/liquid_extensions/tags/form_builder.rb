@@ -47,7 +47,10 @@ module Locomotive
             return returned_message
           end
 
-          # this used for formulars that are specific to an entry (ex: job, event)
+          # this used for formulars that are specific to an entry (ex: seminares job, event)
+          # An example is when the user goes to the seminareAnmeldung from the Seminare overview
+          # Then in thic case the seminar name needs to be displayed at the top of the form, also
+          # the seminare id needs to fill the hidden field seminars" if it exists
 
           params = model[:parameters]
 
@@ -65,7 +68,7 @@ module Locomotive
           end
 
 
-
+          # Here we initialize the datepicker with localized dates
 
           form_html << "<script src='https://www.google.com/recaptcha/api.js' async defer></script><script>$(function() {
                         $( '.datepicker' ).datepicker({
@@ -143,8 +146,12 @@ module Locomotive
                 end
               elsif field_type == 'belongs_to'
                 inverse_of = field['inverse_of']
-                content_type_of_inverse = self.fetch_content_type(inverse_of)
-                entries = current_context.registers[:site].content_entries.where(_type: 'Locomotive::ContentEntry55476baeb3c714d91a000008')
+                field_type_tag = 'hidden'
+                unless entry_id.nil?
+                  field_value = entry_id
+                end
+                form_html <<"<td>&nbsp;</td><td> <#{input_tag} type='#{field_type_tag}' class='#{field_class}' name='content[#{field_name}]' value='#{field_value}'/>"
+                next
               elsif field_type == 'captcha'
                 input_tag = 'textarea'
                 form_html << '<tr><td>&nbsp;</td><td>&nbsp;</td><td><div class="g-recaptcha" data-sitekey="'+public_key+'"></div></td></tr>'
