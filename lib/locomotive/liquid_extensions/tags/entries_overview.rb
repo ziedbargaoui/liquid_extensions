@@ -157,7 +157,8 @@ module Locomotive
                 # get class of the related field's content_type, and its label_field_name
                 related_field_content_type_label_field_name = current_context.registers[:site].content_types.where(_id: field_content_type_id).first[:label_field_name]
 
-
+                # In case the field type is many_to_many then we need to get the real entry of the
+                  #related field, and display it customly depending on the model.
                 if field['type'] == 'many_to_many'
 
                   unless field_name =~ /bild/ || field_name =~ /photo/
@@ -173,7 +174,7 @@ module Locomotive
                     path = render_path(current_context)
 
                     if field_name =~ /seminar/ || field_name =~ /termin/
-                      content << "{% if sub_entry.beginn != null %} {{sub_entry.beginn}} <br>{% endif %}"
+                      content << "{% if sub_entry.beginn != null %} {{sub_entry.beginn | localized_date: '%d.%m.%Y', 'de' }} <br>{% endif %}"
                       content << "{% if sub_entry.location.titel  != empty %} {{ 'ort' | translate }}: {{sub_entry.location.titel}}<br>{% endif %}"
                       content << "{{sub_entry."+related_field_content_type_label_field_name+"}}<br>"
                       content  << "<a href='"+path+"/{{sub_entry._slug}}' >{{ 'details_zum_seminare' | translate}}</a>&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type_slug+"&entry_id={{sub_entry._id}}' >{{'seminareanmeldung' | translate }}</a><br><br>"
@@ -194,7 +195,10 @@ module Locomotive
                 elsif field['type'] == 'belongs_to'
                   content << "{% if entry."+field_name+"."+related_field_content_type_label_field_name+" != null %}"+field_label+": {{ entry."+field_name+"."+related_field_content_type_label_field_name+" }} {% endif %}  "
                 end
-
+              # If the field to be displayed is of type data, that means it's file (mostly image)
+                #in this case we need to extract its extension, if its image then display it in the
+                # <img> tag, if it's file, then display it in the <a> tag with href to the file path
+                # so the user can download it.  
               elsif field['type'] == 'data'
                 content << "
 
@@ -218,27 +222,30 @@ module Locomotive
                 content << "{{ entry."+field_name+"}} "
               end
 
-
               content << "</div>"
-
 
             #end
           end
 
-
-
+          
+          # get the path to the template page of the content type
           @handle = content_type
           path = render_path(current_context)
-
+          
+          # some divs were specific to the seminares and referents models 
+          # and here we should close them
           if content_type =~ /seminar/ || content_type =~ /termin/ || content_type =~ /referent/
             content << "</div>"
             content << "<div class='details_and_inscription'>"
           end
 
+          # If the content type is referents then display the path to the detail view
           if content_type !~ /referent/
             content << "<a href='"+path+"/{{entry._slug}}' >{{'"+mehr+"' | translate }}</a>"
           end
-
+          
+          # If the content type is seminars then display the link to the registration page, otherwise
+          # If it's referents, close the div
           if content_type =~ /seminar/ || content_type =~ /termin/
             content << "&nbsp;&nbsp;&nbsp;<a href='"+path+"/seminare_anmelden?entry_content_type="+content_type+"&entry_id={{entry._id}}' >{{'seminareanmeldung' | translate }}</a></div>"
 
